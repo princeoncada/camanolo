@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { PAGE_READY_EVENT } from "@/hooks/usePageReady";
+import { getImageAssetSnapshot, loadImageAsset } from "@/lib/image-assets";
 
-const MIN_VISIBLE_TIME = 700;
+const SECONDARY_IMAGE_TIMEOUT = 3000;
+const HERO_IMAGE_ASSET = "/image-4.png";
 const IMAGE_ASSETS = [
   "/logo.png",
   "/image.png",
@@ -16,27 +19,30 @@ const IMAGE_ASSETS = [
   "/image-7.png",
   "/image-8.png",
 ];
+const SECONDARY_IMAGE_ASSETS = IMAGE_ASSETS.filter(
+  (src) => src !== HERO_IMAGE_ASSET,
+);
 
-const preloadImage = (src: string) =>
-  new Promise<void>((resolve) => {
-    const image = new window.Image();
-
-    image.onload = () => resolve();
-    image.onerror = () => resolve();
-    image.src = src;
-
-    if (image.complete) {
-      resolve();
-    }
-  });
-
+/**
+ * Full-screen loader shown before the page opens.
+ *
+ * Purpose:
+ * - Make sure the hero image is ready before the user sees the page.
+ * - Give the other images a short chance to load too.
+ * - Avoid making the user wait forever for below-the-fold images.
+ * - Store loaded images in the shared loader so components can reuse them.
+ */
 const PageLoader = () => {
   const [isLoading, setIsLoading] = useState(true);
 
+  const markPageReady = () => {
+    document.documentElement.dataset.pageReady = "true";
+    window.dispatchEvent(new Event(PAGE_READY_EVENT));
+  };
+
   useEffect(() => {
-    let timeoutId: number | undefined;
     let isMounted = true;
-    const startedAt = performance.now();
+    const timeoutIds = new Set<number>();
     const originalBodyOverflow = document.body.style.overflow;
     const originalHtmlOverflow = document.documentElement.style.overflow;
 
@@ -46,40 +52,68 @@ const PageLoader = () => {
     };
 
     const finishLoading = () => {
-      const elapsed = performance.now() - startedAt;
-      const remainingTime = Math.max(MIN_VISIBLE_TIME - elapsed, 0);
+      if (!isMounted) {
+        return;
+      }
 
-      timeoutId = window.setTimeout(() => {
-        if (!isMounted) {
-          return;
-        }
-
-        setIsLoading(false);
-        unlockScroll();
-      }, remainingTime);
+      markPageReady();
+      setIsLoading(false);
+      unlockScroll();
     };
 
-    const waitForImages = () => {
-      Promise.all(IMAGE_ASSETS.map(preloadImage)).then(finishLoading);
+    /**
+     * Loading policy:
+     * 1. If all images are already ready, open the page immediately.
+     * 2. If not, wait up to 3 seconds for all images.
+     * 3. After 3 seconds, only keep waiting if the hero image is not ready.
+     */
+    const preloadCriticalImages = async () => {
+      const queuedImages = [HERO_IMAGE_ASSET, ...SECONDARY_IMAGE_ASSETS];
+
+      if (
+        queuedImages.every((src) => getImageAssetSnapshot(src).isLoaded)
+      ) {
+        finishLoading();
+        return;
+      }
+
+      const allImagesLoaded = Promise.all(
+        queuedImages.map((src) =>
+          loadImageAsset(src, src === HERO_IMAGE_ASSET ? "high" : "low"),
+        ),
+      );
+      
+      const imageBudgetElapsed = new Promise<void>((resolve) => {
+        const timeoutId = window.setTimeout(() => {
+          timeoutIds.delete(timeoutId);
+          resolve();
+        }, SECONDARY_IMAGE_TIMEOUT);
+
+        timeoutIds.add(timeoutId);
+      });
+
+      await Promise.race([allImagesLoaded, imageBudgetElapsed]);
+
+      if (!getImageAssetSnapshot(HERO_IMAGE_ASSET).isLoaded) {
+        await loadImageAsset(HERO_IMAGE_ASSET, "high");
+      }
+
+      finishLoading();
     };
 
     window.history.scrollRestoration = "manual";
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
+    document.documentElement.dataset.pageReady = "false";
 
-    if (document.readyState === "complete") {
-      waitForImages();
-    } else {
-      window.addEventListener("load", waitForImages, { once: true });
-    }
+    preloadCriticalImages();
 
     return () => {
       isMounted = false;
-      if (timeoutId) {
+      timeoutIds.forEach((timeoutId) => {
         window.clearTimeout(timeoutId);
-      }
-      window.removeEventListener("load", waitForImages);
+      });
       unlockScroll();
     };
   }, []);
