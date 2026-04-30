@@ -10,6 +10,7 @@ const SCROLL_SETTLE_DELAY = 140;
 
 const SiteHeader = () => {
   const [currentSection, setCurrentSection] = useState(0);
+  const [visualSection, setVisualSection] = useState(0);
   const scrollUpdateTimeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
@@ -26,7 +27,13 @@ const SiteHeader = () => {
       setCurrentSection(getCurrentSection());
     };
 
+    const updateVisualSection = () => {
+      setVisualSection(getCurrentSection());
+    };
+
     const updateCurrentSectionAfterScrollSettles = () => {
+      updateVisualSection();
+
       if (scrollUpdateTimeoutRef.current) {
         window.clearTimeout(scrollUpdateTimeoutRef.current);
       }
@@ -37,10 +44,12 @@ const SiteHeader = () => {
     };
 
     updateCurrentSection();
+    updateVisualSection();
     window.addEventListener("scroll", updateCurrentSectionAfterScrollSettles, {
       passive: true,
     });
     window.addEventListener("resize", updateCurrentSection);
+    window.addEventListener("resize", updateVisualSection);
 
     return () => {
       if (scrollUpdateTimeoutRef.current) {
@@ -51,12 +60,14 @@ const SiteHeader = () => {
         updateCurrentSectionAfterScrollSettles,
       );
       window.removeEventListener("resize", updateCurrentSection);
+      window.removeEventListener("resize", updateVisualSection);
     };
   }, []);
 
   const scrollToSection = (index: number) => {
     const element = document.getElementById(sections[index].id);
     setCurrentSection(index);
+    setVisualSection(index);
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -103,6 +114,7 @@ const SiteHeader = () => {
 
       <Navbar
         currentSection={currentSection}
+        visualSection={visualSection}
         sections={[...sections]}
         onNavigate={scrollToSection}
       />
