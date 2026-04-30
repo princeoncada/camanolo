@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
+import LoadingImage from "@/components/shared/LoadingImage";
 
 const Footer = () => {
   return (
@@ -12,12 +12,13 @@ const Footer = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <Image
+          <LoadingImage
             src="/logo.png"
             alt="Camanolo"
             width={160}
             height={60}
-            className="mx-auto mb-6 h-16 w-auto"
+            wrapperClassName="mx-auto mb-6 h-16 w-fit bg-transparent"
+            className="h-16 w-auto"
           />
         </motion.div>
 
