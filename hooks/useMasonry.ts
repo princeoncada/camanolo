@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import type { ImageItem } from "@/components/shadix-ui/components/image-gallery";
 
@@ -19,12 +19,13 @@ const useMasonry = (
     containerWidth: number,
     config: MasonryConfig,
 ) => {
-    const [layout, setLayout] = useState<MasonryItem[]>([]);
-    const [totalHeight, setTotalHeight] = useState(0);
-
-    useEffect(() => {
-        if (!containerWidth || images.length === 0 || config.columns < 1)
-            return;
+    return useMemo(() => {
+        if (!containerWidth || images.length === 0 || config.columns < 1) {
+            return {
+                layout: [],
+                totalHeight: 0,
+            };
+        }
 
         // Column-based masonry with no gaps - scale images to fill column width
         const totalGapWidth = config.gap * (config.columns - 1);
@@ -104,14 +105,11 @@ const useMasonry = (
             });
         });
 
-        setLayout(newLayout);
-        setTotalHeight(maxHeight);
+        return {
+            layout: newLayout,
+            totalHeight: maxHeight,
+        };
     }, [images, containerWidth, config.gap, config.columns]);
-
-    return {
-        layout,
-        totalHeight,
-    };
 };
 
 export { useMasonry };
