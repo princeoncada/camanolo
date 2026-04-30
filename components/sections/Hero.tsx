@@ -1,9 +1,36 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import LoadingImage from "@/components/shared/LoadingImage";
 import usePageReady from "@/hooks/usePageReady";
+
+const heroTextContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.25,
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const heroTextItemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 28,
+    filter: "blur(6px)",
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.85,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
 
 const Hero = () => {
   const { scrollYProgress } = useScroll();
@@ -34,22 +61,31 @@ const Hero = () => {
 
       <div className="relative z-10 px-4 text-center text-white">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isPageReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 1.25, delay: 0.5 }}
+          initial="hidden"
+          animate={isPageReady ? "visible" : "hidden"}
+          variants={heroTextContainerVariants}
           className="flex flex-col items-center"
         >
-          <h1 className="mb-4 text-[10vw] leading-10 tracking-wider lg:text-[8vw] lg:leading-35">
+          <motion.h1
+            variants={heroTextItemVariants}
+            className="mb-4 text-[10vw] leading-10 tracking-wider lg:text-[8vw] lg:leading-35"
+          >
             CAMANOLO
-          </h1>
+          </motion.h1>
 
-          <p className="mb-8 text-xl font-light tracking-[0.3em] md:text-4xl">
+          <motion.p
+            variants={heroTextItemVariants}
+            className="mb-8 text-xl font-light tracking-[0.3em] md:text-4xl"
+          >
             HOMESTAY
-          </p>
+          </motion.p>
 
-          <p className="mb-10 max-w-md text-base font-light md:text-md">
+          <motion.p
+            variants={heroTextItemVariants}
+            className="mb-10 max-w-md text-base font-light md:text-md"
+          >
             Siargao, Philippines
-          </p>
+          </motion.p>
 
           <motion.div style={{ opacity }}>
             <motion.div
@@ -57,7 +93,7 @@ const Hero = () => {
               animate={
                 isPageReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }
               }
-              transition={{ duration: 0.8, delay: 1, ease: "easeOut" }}
+              transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
             >
               <ChevronDown className="animate-bounce" size={32} />
             </motion.div>
