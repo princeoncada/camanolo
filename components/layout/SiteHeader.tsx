@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { sections } from "@/lib/sections";
 import { Navbar } from "./Navbar";
+import LoadingImage from "@/components/shared/LoadingImage";
 
 const SiteHeader = () => {
   const [currentSection, setCurrentSection] = useState(0);
@@ -51,11 +51,12 @@ const SiteHeader = () => {
           transition={{ duration: 0.2 }}
           className="hover:cursor-pointer"
         >
-          <Image
+          <LoadingImage
             src="/logo.png"
             alt="Camanolo"
             width={160}
             height={40}
+            wrapperClassName="h-10 w-fit bg-transparent"
             className="h-10 w-auto"
           />
         </motion.button>
