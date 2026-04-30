@@ -1,4 +1,4 @@
-# Camanolo Homestay
+# 🏡 Camanolo Homestay
 
 A polished landing site for Camanolo Homestay in Siargao, Philippines. Built with Next.js, React, Tailwind CSS, Framer Motion, Motion Primitives, and shadcn-style components.
 
@@ -17,7 +17,6 @@ A polished landing site for Camanolo Homestay in Siargao, Philippines. Built wit
 ## Tech Stack
 
 - Next.js 16
-- React 19
 - TypeScript
 - Tailwind CSS 4
 - Framer Motion / Motion
