@@ -36,7 +36,7 @@ const Hero = () => {
           transition={{ duration: 1.25, delay: 0.5 }}
           className="flex flex-col items-center"
         >
-          <h1 className="mb-4 text-[10vw] tracking-wider md:text-[8vw] leading-35">
+          <h1 className="mb-4 text-[10vw] leading-10 tracking-wider lg:text-[8vw] lg:leading-35">
             CAMANOLO
           </h1>
 
