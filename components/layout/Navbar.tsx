@@ -90,7 +90,7 @@ export function Navbar({
                     }}
                     className={
                       currentSection === index
-                        ? 'bg-black text-white hover:bg-black hover:text-white focus:bg-black focus:text-white data-[highlighted]:bg-black data-[highlighted]:text-white'
+                        ? 'bg-black text-white hover:bg-black hover:text-white focus:bg-black focus:text-white data-highlighted:bg-black data-highlighted:text-white'
                         : 'text-gray-500'
                     }
                   >
