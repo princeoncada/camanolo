@@ -1,32 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { sections } from "@/lib/sections";
 import { Navbar } from "./Navbar";
 import LoadingImage from "@/components/shared/LoadingImage";
 
+const SCROLL_SETTLE_DELAY = 140;
+
 const SiteHeader = () => {
   const [currentSection, setCurrentSection] = useState(0);
+  const scrollUpdateTimeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    const updateCurrentSection = () => {
+    const getCurrentSection = () => {
       const anchor = window.scrollY + window.innerHeight * 0.35;
 
-      const nextSection = sections.reduce((activeIndex, section, index) => {
+      return sections.reduce((activeIndex, section, index) => {
         const element = document.getElementById(section.id);
         return element && element.offsetTop <= anchor ? index : activeIndex;
       }, 0);
+    };
 
-      setCurrentSection(nextSection);
+    const updateCurrentSection = () => {
+      setCurrentSection(getCurrentSection());
+    };
+
+    const updateCurrentSectionAfterScrollSettles = () => {
+      if (scrollUpdateTimeoutRef.current) {
+        window.clearTimeout(scrollUpdateTimeoutRef.current);
+      }
+
+      scrollUpdateTimeoutRef.current = window.setTimeout(() => {
+        updateCurrentSection();
+      }, SCROLL_SETTLE_DELAY);
     };
 
     updateCurrentSection();
-    window.addEventListener("scroll", updateCurrentSection, { passive: true });
+    window.addEventListener("scroll", updateCurrentSectionAfterScrollSettles, {
+      passive: true,
+    });
     window.addEventListener("resize", updateCurrentSection);
 
     return () => {
-      window.removeEventListener("scroll", updateCurrentSection);
+      if (scrollUpdateTimeoutRef.current) {
+        window.clearTimeout(scrollUpdateTimeoutRef.current);
+      }
+      window.removeEventListener(
+        "scroll",
+        updateCurrentSectionAfterScrollSettles,
+      );
       window.removeEventListener("resize", updateCurrentSection);
     };
   }, []);
