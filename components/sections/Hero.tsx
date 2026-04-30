@@ -1,12 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import LoadingImage from "@/components/shared/LoadingImage";
+import usePageReady from "@/hooks/usePageReady";
 
 const Hero = () => {
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const isPageReady = usePageReady();
 
   return (
     <section
@@ -15,15 +17,16 @@ const Hero = () => {
     >
       <motion.div
         className="absolute inset-0"
-        initial={{ scale: 1.2 }}
-        animate={{ scale: 1 }}
+        initial={false}
+        animate={{ scale: isPageReady ? 1 : 1.2 }}
         transition={{ duration: 1.75, ease: "easeOut" }}
       >
-        <Image
+        <LoadingImage
           src="/image-4.png"
           alt="Camanolo Homestay"
           fill
-          priority
+          preload
+          wrapperClassName="absolute inset-0"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
@@ -32,7 +35,7 @@ const Hero = () => {
       <div className="relative z-10 px-4 text-center text-white">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={isPageReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 1.25, delay: 0.5 }}
           className="flex flex-col items-center"
         >
@@ -51,7 +54,9 @@ const Hero = () => {
           <motion.div style={{ opacity }}>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={
+                isPageReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }
+              }
               transition={{ duration: 0.8, delay: 1, ease: "easeOut" }}
             >
               <ChevronDown className="animate-bounce" size={32} />
