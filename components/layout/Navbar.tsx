@@ -9,13 +9,19 @@ import {
 
 interface NavbarProps {
   currentSection: number;
+  visualSection: number;
   sections: { id: string; label: string }[];
   onNavigate: (index: number) => void;
 }
 
-export function Navbar({ currentSection, sections, onNavigate }: NavbarProps) {
+export function Navbar({
+  currentSection,
+  visualSection,
+  sections,
+  onNavigate,
+}: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isHome = currentSection === 0;
+  const isHome = visualSection === 0;
 
   return (
     <>
