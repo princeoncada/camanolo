@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import LoadingImage from "@/components/shared/LoadingImage";
 
 const amenities = [
   { label: "Garden views", image: "/image-2.png" },
@@ -59,11 +59,12 @@ const Experience = () => {
                   transition={{ duration: 0.35, ease: "easeOut" }}
                   className="absolute inset-0"
                 >
-                  <Image
+                  <LoadingImage
                     src={activeImage.image}
                     alt={activeImage.label}
                     fill
                     sizes="100vw"
+                    wrapperClassName="absolute inset-0"
                     className="object-cover"
                   />
                 </motion.div>
@@ -139,11 +140,12 @@ const Experience = () => {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="absolute inset-0"
               >
-                <Image
+                <LoadingImage
                   src={activeImage.image}
                   alt={activeImage.label}
                   fill
                   sizes="50vw"
+                  wrapperClassName="absolute inset-0"
                   className="object-cover"
                 />
               </motion.div>
